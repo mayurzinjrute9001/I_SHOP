@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load cart %}
+{% block content %}
+<h1>cart page</h1>
+<div class="container">
+    <table class="table border">
+        <thead>
+        <tr>
+            <th>Sr.No</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td><img src="{{product.product_img.url}}" class=" .img-fluid. img-thumbnail  card-img-top" style="width:5rem" alt="...">{{product.product}}</td>
+                <td>{{product.product_price}}</td>
+                <td>{{product|cart_quantity:request.session.cart}}</td>
+                <td>{{product|price_total:request.session.cart}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-center"><strong>Total Price</strong></td>
+                <td>RS.{{products|Subtotal:request.session.cart}}</td>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="container">
+        <div class="col-3 ml-auto">
+            <a  class="btn btn-dark btn-block" href="/order/?action=create_payment">Place Order</a>
+        </div>
+
+    </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Place Order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+<!--        <form action="{% url 'order' %} " method="post">-->
+<!--            <div class="form-group" >-->
+<!--                {% csrf_token %}-->
+<!--                <label>Address</label>-->
+<!--                <input type="text" class="form-control" name="address">-->
+<!--                <label>Phone</label>-->
+<!--                <input type="number" class="form-control" name="phone">-->
+<!--            </div>-->
+<!--      </div>-->
+<!--      <div class="modal-footer">-->
+<!--        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+<!--        <button href="/order/?action=create_payment" class="btn btn-info">Check Out</button>-->
+<!--      </div>-->
+<!--        </form>
+    </div>
+  </div>
+</div>
+
+
+</div>-->
+
+
+{% if order is not None %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    var options = {
+        "key": "rzp_test_pruRZrqbWAkR97", // Enter the Key ID generated from the Dashboard
+        "name": "Perfect ITSolution",
+        "description": "Payment For {{course.name}}",
+        "image": "https://png.pngtree.com/element_pic/00/16/07/115783931601b5c.jpg",
+        "order_id": "{{order.id}}", // This is a sample Order ID. Pass the 'id' obtained in the response of Step 1
+        "callback_url": "http://localhost:8000/verify_payment",
+        "prefill": {
+            "name": "{{user.first_name}}",
+            "email": "{{user.email}}"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+
+</script>
+{% endif %}
+
+{% if error is not None %}
+
+<script>
+    window.onload = ()=>{
+        alert("{{error}}")
+    }
+</script>
+
+{% endif %}
+{% endblock %}
